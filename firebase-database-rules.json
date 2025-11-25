@@ -1,0 +1,23 @@
+{
+  "rules": {
+    "quizzes": {
+      ".read": true,
+      ".write": true,
+      "$quizId": {
+        ".validate": "newData.hasChildren(['id', 'title', 'questions', 'createdAt', 'updatedAt'])"
+      }
+    },
+    "games": {
+      ".read": true,
+      ".write": true,
+      "$gamePin": {
+        ".validate": "newData.hasChildren(['gamePin', 'quizId', 'hostName', 'status', 'currentQuestion'])",
+        "players": {
+          "$playerId": {
+            ".validate": "newData.hasChildren(['id', 'name', 'score'])"
+          }
+        }
+      }
+    }
+  }
+}
