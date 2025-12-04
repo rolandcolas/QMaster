@@ -78,12 +78,27 @@ export const startGame = async (gamePin) => {
   }
 };
 
+// Reveal correct answer
+export const revealAnswer = async (gamePin, showResults) => {
+  try {
+    const gameRef = ref(database, `games/${gamePin}`);
+    await update(gameRef, {
+      showResults: showResults
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Error revealing answer:', error);
+    return { success: false, error: error.message };
+  }
+};
+
 // Move to next question
 export const nextQuestion = async (gamePin, currentQuestionIndex) => {
   try {
     const gameRef = ref(database, `games/${gamePin}`);
     await update(gameRef, {
-      currentQuestion: currentQuestionIndex + 1
+      currentQuestion: currentQuestionIndex + 1,
+      showResults: false
     });
     return { success: true };
   } catch (error) {

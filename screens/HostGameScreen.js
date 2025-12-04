@@ -7,7 +7,7 @@ import {
   SafeAreaView,
   Alert,
 } from 'react-native';
-import { listenToGame, nextQuestion, endGame, updatePlayerScore } from '../services/gameService';
+import { listenToGame, nextQuestion, endGame, updatePlayerScore, revealAnswer } from '../services/gameService';
 
 const ANSWER_COLORS = ['#e21b3c', '#1368ce', '#d89e00', '#26890c'];
 const ANSWER_LABELS = ['A', 'B', 'C', 'D'];
@@ -75,9 +75,10 @@ export default function HostGameScreen({ navigation, route }) {
     });
   };
 
-  const handleShowResults = () => {
+  const handleShowResults = async () => {
     calculateScores();
     setShowResults(true);
+    await revealAnswer(gamePin, true);
   };
 
   const handleNextQuestion = async () => {

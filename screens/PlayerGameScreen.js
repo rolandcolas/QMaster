@@ -79,6 +79,9 @@ export default function PlayerGameScreen({ navigation, route }) {
 
   const playerData = gameData.players?.[playerId];
   const hasAnswered = playerData?.answers?.[gameData.currentQuestion] !== undefined;
+  const showResults = gameData.showResults || false;
+  const playerAnswer = playerData?.answers?.[gameData.currentQuestion]?.answerIndex;
+  const correctAnswer = currentQuestionData.correctAnswer;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -97,19 +100,97 @@ export default function PlayerGameScreen({ navigation, route }) {
       </View>
 
       {hasAnswered ? (
-        <View style={styles.waitingContainer}>
-          <Text style={styles.waitingText}>✓ Answer submitted!</Text>
-          <Text style={styles.waitingSubtext}>
-            Waiting for other players...
-          </Text>
-        </View>
+        showResults ? (
+          <View style={styles.resultsContainer}>
+            <View style={styles.answersContainer}>
+              {currentQuestionData.options.map((option, index) => {
+                const isCorrect = index === correctAnswer;
+                const wasSelected = index === playerAnswer;
+                
+                return (
+                  <View
+                    key={index}
+                    style={[
+                      styles.resultAnswer,
+                      { backgroundColor: ANSWER_COLORS[index] },
+                      isCorrect && styles.correctAnswerBorder,
+                    ]}
+                  >
+                    <View style={styles.answerContent}>
+                      <Text style={styles.answerLabel}>{ANSWER_LABELS[index]}</Text>
+                      <Text style={styles.answerText}>{option}</Text>
+                    </View>
+                    <View style={styles.badgeContainer}>
+                      {wasSelected && (
+                        <Text style={styles.selectedBadge}>
+                          {isCorrect ? '✓ Correct!' : '✗ Wrong'}
+                        </Text>
+                      )}
+                      {isCorrect && !wasSelected && (
+                        <Text style={styles.correctBadge}>✓ Correct Answer</Text>
+                      )}
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+            <View style={styles.scoreUpdate}>
+              <Text style={styles.scoreUpdateText}>
+                {playerAnswer === correctAnswer 
+                  ? '🎉 You got it right!' 
+                  : '😔 Better luck next time'}
+              </Text>
+              <Text style={styles.currentScore}>Score: {playerData?.score || 0}</Text>
+            </View>
+          </View>
+        ) : (
+          <View style={styles.waitingContainer}>
+            <Text style={styles.waitingText}>✓ Answer submitted!</Text>
+            <Text style={styles.waitingSubtext}>
+              Waiting for host to reveal answer...
+            </Text>
+          </View>
+        )
       ) : timeLeft <= 0 ? (
-        <View style={styles.waitingContainer}>
-          <Text style={styles.waitingText}>Time's up!</Text>
-          <Text style={styles.waitingSubtext}>
-            Waiting for other players...
-          </Text>
-        </View>
+        showResults ? (
+          <View style={styles.resultsContainer}>
+            <View style={styles.answersContainer}>
+              {currentQuestionData.options.map((option, index) => {
+                const isCorrect = index === correctAnswer;
+                
+                return (
+                  <View
+                    key={index}
+                    style={[
+                      styles.resultAnswer,
+                      { backgroundColor: ANSWER_COLORS[index] },
+                      isCorrect && styles.correctAnswerBorder,
+                    ]}
+                  >
+                    <View style={styles.answerContent}>
+                      <Text style={styles.answerLabel}>{ANSWER_LABELS[index]}</Text>
+                      <Text style={styles.answerText}>{option}</Text>
+                    </View>
+                    {isCorrect && (
+                      <Text style={styles.correctBadge}>✓ Correct Answer</Text>
+                    )}
+                  </View>
+                );
+              })}
+            </View>
+            <View style={styles.scoreUpdate}>
+              <Text style={styles.scoreUpdateText}>⏱️ Time's up!</Text>
+              <Text style={styles.currentScore}>Score: {playerData?.score || 0}</Text>
+            </View>
+          </View>
+        ) : (
+          <View style={styles.waitingContainer}>
+            <Text style={styles.waitingText}>Time's up!</Text>
+            <Text style={styles.waitingSubtext}>
+              Waiting for host to reveal answer...
+            </Text>
+          </View>
+        )
       ) : (
         <View style={styles.answersContainer}>
           {currentQuestionData.options.map((option, index) => (
@@ -236,5 +317,52 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#e0e0e0',
     textAlign: 'center',
+  },
+  resultsContainer: {
+    flex: 1,
+  },
+  resultAnswer: {
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 12,
+    marginHorizontal: 20,
+  },
+  correctAnswerBorder: {
+    borderWidth: 4,
+    borderColor: '#fff',
+  },
+  answerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  badgeContainer: {
+    marginTop: 8,
+  },
+  selectedBadge: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  correctBadge: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  scoreUpdate: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    margin: 20,
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  scoreUpdateText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 8,
+  },
+  currentScore: {
+    fontSize: 18,
+    color: '#e0e0e0',
   },
 });
